@@ -77,6 +77,7 @@ describe('ConfigModule.forRoot', () => {
   test('profile from options selects profile-specific env files', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'orbit-cfg-'));
     roots.push(dir);
+    const prevCwd = process.cwd();
     process.chdir(dir);
 
     writeFileSync(join(dir, '.env'), 'BASE=1\n');
@@ -90,12 +91,13 @@ describe('ConfigModule.forRoot', () => {
     expect(config.MODE).toBe('prod');
     expect(config.SECRET).toBe('local');
     expect(config.__profile).toBe('production');
-    process.chdir('/Users/buitronghieu/Desktop/Project/galaxy/galaxy-bun/bungalaxy');
+    process.chdir(prevCwd);
   });
 
   test('env file parsing: quotes, comments, malformed lines', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'orbit-cfg-'));
     roots.push(dir);
+    const prevCwd = process.cwd();
     process.chdir(dir);
 
     writeFileSync(join(dir, '.env'), [
@@ -116,19 +118,20 @@ describe('ConfigModule.forRoot', () => {
     expect(config.SINGLE).toBe('single quoted');
     expect(config.SPACED).toBe('padded');
     expect(config['no equals sign here']).toBeUndefined();
-    process.chdir('/Users/buitronghieu/Desktop/Project/galaxy/galaxy-bun/bungalaxy');
+    process.chdir(prevCwd);
   });
 
   test('ignoreEnvFile skips env files entirely', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'orbit-cfg-'));
     roots.push(dir);
+    const prevCwd = process.cwd();
     process.chdir(dir);
     writeFileSync(join(dir, '.env'), 'SHOULD_NOT_LOAD=yes\n');
 
     const dm = ConfigModule.forRoot({ ignoreEnvFile: true, ignoreEnvVars: true });
     const config = await instantiate(dm);
     expect(config.SHOULD_NOT_LOAD).toBeUndefined();
-    process.chdir('/Users/buitronghieu/Desktop/Project/galaxy/galaxy-bun/bungalaxy');
+    process.chdir(prevCwd);
   });
 
   test('profile-specific load functions run for the active profile', async () => {
